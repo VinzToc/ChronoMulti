@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#1f8bff">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="ChronoMulti">
+<title>ChronoMulti</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icons/icon-192.png">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<style>
+:root{--ink:#1b2a49;--blue:#1f8bff;--blue2:#0040d0;--grey:#6b7587}
+*{box-sizing:border-box}
+body{margin:0;font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;color:var(--ink);min-height:100vh;padding-bottom:92px;background:#eef5ff}
+header{display:flex;align-items:center;gap:14px;padding:16px 20px;background:linear-gradient(120deg,#1f8bff,#2fd64f 55%,#ff9a2e);color:#fff;box-shadow:0 6px 20px #0003}
+header img{width:56px;height:56px;border-radius:14px;box-shadow:0 4px 10px #0004}
+h1{margin:0;font-size:1.6rem;text-shadow:0 2px 6px #0005}
+header p{margin:2px 0 0;font-size:.85rem;font-weight:600;text-shadow:0 1px 3px #0005}
+main{max-width:960px;margin:auto;padding:16px}
+.tab{display:none}.tab.act{display:block}
+.card{background:#fff;border-radius:20px;padding:20px;margin-bottom:16px;box-shadow:0 8px 24px #1b2a4920;border:2px solid #fff}
+h2{margin:0 0 12px;font-size:1.05rem}
+label{display:block;font-size:.85rem;color:var(--grey);margin-bottom:4px}
+input,select{width:100%;padding:10px 12px;border:2px solid #1f8bff33;border-radius:12px;font-size:1rem;font-family:inherit;background:#fff;color:var(--ink)}
+input:focus,select:focus{outline:none;border-color:var(--blue)}
+input:disabled,select:disabled{background:#f1f3f7;color:#9aa3b2}
+.grid{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(170px,1fr))}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.btn{border:0;border-radius:14px;padding:12px 16px;font-weight:700;font-size:.95rem;color:#fff;cursor:pointer;box-shadow:0 5px 12px #0002,inset 0 2px 0 #fff5}
+.btn:active{transform:scale(.97)}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.btn.g{background:linear-gradient(#3fd166,#1f9a40)}
+.btn.o{background:linear-gradient(#ffa21f,#ff5e00)}
+.btn.b{background:linear-gradient(#1f8bff,#0040d0)}
+.btn.r{background:linear-gradient(#f0605f,#c0302f)}
+.btn.s{background:linear-gradient(#9aa4b5,#6b7587)}
+.btn.sm{padding:9px 13px;font-size:.88rem}
+.btn.pale{background:#eef3ff;color:var(--ink);box-shadow:none;border:2px solid #1f8bff33}
+.toggle{display:flex;align-items:center;gap:8px;font-size:.95rem;cursor:pointer}
+.toggle input{width:20px;height:20px}
+.presets{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:12px}
+.display{font-size:4.5rem;font-weight:800;text-align:center;font-variant-numeric:tabular-nums;letter-spacing:2px;color:#fff;border-radius:22px;padding:26px 10px;background:linear-gradient(135deg,#1f8bff,#0040d0);box-shadow:0 10px 24px #0040d055}
+.display small{font-size:.5em;opacity:.9}
+.display.flash{animation:flash .6s ease-in-out 4}
+@keyframes flash{50%{filter:brightness(1.5)}}
+.status{text-align:center;color:var(--grey);font-weight:600;margin:10px 0;min-height:22px}
+.controls{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+.splits{max-height:240px;overflow-y:auto}
+.split{display:flex;justify-content:space-between;padding:10px 12px;margin-bottom:8px;background:#f4f8ff;border-left:5px solid var(--blue);border-radius:10px;font-variant-numeric:tabular-nums}
+.muted{color:var(--grey);font-size:.9rem}
+.wrap{max-height:55vh;overflow:auto;border-radius:12px}
+table{width:100%;border-collapse:collapse;font-size:.9rem}
+th{position:sticky;top:0;background:linear-gradient(#1f8bff,#0040d0);color:#fff;padding:9px;text-align:left}
+td{padding:8px 9px;border-bottom:1px solid #1b2a4914}
+tr:nth-child(even) td{background:#1f8bff0a}
+nav{position:fixed;bottom:0;left:0;right:0;display:flex;justify-content:center;gap:10px;padding:10px 10px calc(10px + env(safe-area-inset-bottom));background:#ffffffe6;backdrop-filter:blur(12px);box-shadow:0 -6px 20px #0002}
+nav button{flex:1;max-width:260px;border:0;border-radius:16px;padding:12px;font-weight:800;background:#e8eefc;color:var(--ink);cursor:pointer}
+nav button.act{color:#fff;background:linear-gradient(#1f8bff,#0040d0)}
+@media(max-width:640px){.display{font-size:3.2rem}.presets{grid-template-columns:repeat(2,1fr)}.controls{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<header>
+  <img src="icons/icon-192.png" alt="">
+  <div><h1>ChronoMulti</h1><p>Chronomètre multi-usages pour l'EPS</p></div>
+</header>
+<main>
+
+<!-- ONGLET CHRONO (accueil) -->
+<section id="t1" class="tab act">
+  <div class="card">
+    <h2>📥 Données Mes Apps EPS</h2>
+    <div class="row">
+      <button class="btn b" id="imp">Importer les élèves de Mes Apps EPS</button>
+    </div>
+    <p class="muted" id="msg" style="margin:10px 0 0;font-weight:600"></p>
+    <p class="muted">🔒 Les données restent sur cet appareil. Les résultats sont ajoutés à la fiche de chaque élève, dans des colonnes propres à ChronoMulti.</p>
+  </div>
+
+  <div class="card">
+    <h2>Informations (facultatif)</h2>
+    <div class="grid">
+      <div><label for="titre">Titre du chrono</label><input id="titre" placeholder="ex : Relais 4×100 m"></div>
+      <div><label for="date">Date</label><input id="date" type="date"></div>
+      <div><label for="eleve">Élève</label><select id="eleve"><option value="">— Aucun élève —</option></select></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Réglages</h2>
+    <div class="settings">
+      <div class="grid">
+        <div><label for="mode">Mode</label>
+          <select id="mode"><option value="chrono">Chronomètre</option><option value="countdown">Compte à rebours</option></select></div>
+        <div><label for="min">Minutes</label><input id="min" type="number" min="0" max="99" value="0"></div>
+        <div><label for="sec">Secondes</label><input id="sec" type="number" min="0" max="59" value="30"></div>
+      </div>
+      <div class="presets">
+        <button class="btn pale sm" data-sec="30">30s</button>
+        <button class="btn pale sm" data-sec="60">1min</button>
+        <button class="btn pale sm" data-sec="120">2min</button>
+        <button class="btn pale sm" data-sec="300">5min</button>
+      </div>
+      <div class="row" style="margin-top:14px;gap:24px">
+        <label class="toggle"><input id="optCd" type="checkbox" checked> Décompte 3-2-1</label>
+        <label class="toggle"><input id="optWh" type="checkbox" checked> Coup de sifflet en fin</label>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="display" id="display">00:00:00<small>.00</small></div>
+    <div class="status" id="status">Prêt</div>
+    <div class="controls">
+      <button class="btn g" id="play">▶ Démarrer</button>
+      <button class="btn b" id="split" disabled>⏱ Temps inter.</button>
+      <button class="btn r" id="stop" disabled>⏹ Arrêter & enregistrer</button>
+      <button class="btn s" id="reset">↺ Réinitialiser</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Temps intermédiaires</h2>
+    <div class="splits" id="splits"></div>
+  </div>
+</section>
+
+<!-- ONGLET RÉSULTATS -->
+<section id="t2" class="tab">
+  <div class="card">
+    <h2>Résultats de cette session</h2>
+    <div class="wrap"><table><thead><tr><th>Date</th><th>Titre</th><th>Élève</th><th>Mode</th><th>Temps final</th></tr></thead><tbody id="rtb"></tbody></table></div>
+    <div class="row" style="margin-top:14px;justify-content:space-between">
+      <span class="muted" id="rcnt">0 enregistrement(s)</span>
+      <button class="btn o" id="exp">⬇ Exporter pour Mes Apps EPS (.csv)</button>
+    </div>
+    <p class="muted" style="margin-top:10px" id="expInfo"></p>
+  </div>
+</section>
+</main>
+
+<nav>
+  <button class="act" data-t="t1">⏱ Chrono</button>
+  <button data-t="t2">📊 Résultats</button>
+</nav>
+
+<script src="eps-core.js"></script>
+<script>
+const $=s=>document.querySelector(s);
+const $$=s=>[...document.querySelectorAll(s)];
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
+let students=[], results=[];
+let mode='chrono', targetMs=30000, running=false, locked=false, baseMs=0, t0=0, timerId=null;
+let splits=[], beeps={1:false,2:false,3:false}, audio=null, wake=null;
+
+/* ---------- Onglets ---------- */
+$$('nav button').forEach(b=>b.onclick=()=>{
+  $$('nav button').forEach(x=>x.classList.remove('act'));
+  $$('.tab').forEach(x=>x.classList.remove('act'));
+  b.classList.add('act'); $('#'+b.dataset.t).classList.add('act');
+});
+
+/* ---------- Import Mes Apps EPS (via eps-core.js) ---------- */
+async function importEPS(){
+  const msg=$('#msg');
+  if(!window.EPS){
+    msg.style.color='#c0392b';
+    msg.textContent='❌ eps-core.js introuvable : vérifiez qu\'il est présent à côté de index.html.';
+    return;
+  }
+  try{
+    students=(await EPS.all()).sort((a,b)=>(a.nom+a.prenom).localeCompare(b.nom+b.prenom,'fr'));
+    if(!students.length){
+      msg.style.color='#c0392b';
+      msg.textContent='⚠ Aucun élève trouvé. Ouvrez Mes Apps EPS sur ce même site et importez d\'abord la liste Pronote.';
+      renderStudents(); return;
+    }
+    renderStudents();
+    msg.style.color='#1a8a3a';
+    msg.textContent=`✅ ${students.length} élève(s) importé(s) depuis Mes Apps EPS.`;
+  }catch(e){
+    msg.style.color='#c0392b';
+    msg.textContent='❌ Import impossible : '+(e.message||e);
+  }
+}
+function renderStudents(){
+  const cur=$('#eleve').value;
+  $('#eleve').innerHTML='<option value="">— Aucun élève —</option>'+students.map(s=>
+    `<option value="${esc(s.id)}" ${s.id===cur?'selected':''}>${esc(s.nom)} ${esc(s.prenom)}${s.classe?' ('+esc(s.classe)+')':''}</option>`).join('');
+}
+const studentById=id=>students.find(s=>s.id===id);
+
+/* ---------- Audio ---------- */
+function ctx(){
+  if(!audio) audio=new (window.AudioContext||window.webkitAudioContext)();
+  if(audio.state==='suspended') audio.resume();
+  return audio;
+}
+function beep(f=880,d=0.15,v=0.3){
+  const c=ctx(), o=c.createOscillator(), g=c.createGain(), t=c.currentTime;
+  o.type='square'; o.frequency.value=f; o.connect(g); g.connect(c.destination);
+  g.gain.setValueAtTime(v,t); g.gain.exponentialRampToValueAtTime(0.001,t+d);
+  o.start(t); o.stop(t+d);
+}
+function whistle(){
+  const c=ctx(), t=c.currentTime;
+  const o=c.createOscillator(), lfo=c.createOscillator(), lg=c.createGain(), g=c.createGain();
+  o.type='sine'; o.frequency.setValueAtTime(2600,t);
+  lfo.frequency.value=45; lg.gain.value=180; lfo.connect(lg); lg.connect(o.frequency);
+  o.connect(g); g.connect(c.destination);
+  g.gain.setValueAtTime(0,t); g.gain.linearRampToValueAtTime(0.5,t+0.05);
+  g.gain.setValueAtTime(0.5,t+0.9); g.gain.linearRampToValueAtTime(0,t+1.1);
+  o.start(t); lfo.start(t); o.stop(t+1.15); lfo.stop(t+1.15);
+}
+
+/* ---------- Écran allumé ---------- */
+async function keepAwake(on){
+  try{
+    if(on&&'wakeLock' in navigator) wake=await navigator.wakeLock.request('screen');
+    else if(!on&&wake){ await wake.release(); wake=null; }
+  }catch(e){}
+}
+
+/* ---------- Temps ---------- */
+const elapsed=()=>running?baseMs+(performance.now()-t0):baseMs;
+const displayValue=()=>mode==='countdown'?Math.max(0,targetMs-elapsed()):elapsed();
+function fmt(ms){
+  const t=Math.floor(ms), p=n=>String(n).padStart(2,'0');
+  return {main:`${p(Math.floor(t/3600000))}:${p(Math.floor((t%3600000)/60000))}:${p(Math.floor((t%60000)/1000))}`,
+          cs:p(Math.floor((t%1000)/10))};
+}
+const fmtText=ms=>{const f=fmt(ms);return `${f.main}.${f.cs}`};
+function render(){const f=fmt(displayValue());$('#display').innerHTML=`${f.main}<small>.${f.cs}</small>`}
+const setStatus=t=>$('#status').textContent=t;
+
+function applyTarget(){
+  const m=parseInt($('#min').value,10)||0, s=Math.min(parseInt($('#sec').value,10)||0,59);
+  targetMs=Math.max(1000,(m*60+s)*1000);
+  if(!running&&baseMs===0) render();
+}
+function setPreset(sec){
+  mode='countdown'; $('#mode').value='countdown';
+  $('#min').value=Math.floor(sec/60); $('#sec').value=sec%60;
+  applyTarget(); updateButtons();
+}
+
+/* ---------- Chrono ---------- */
+function tick(){
+  if(!running) return;
+  if(mode==='countdown'){
+    const rem=targetMs-elapsed(), s=Math.ceil(rem/1000);
+    if($('#optCd').checked&&s>=1&&s<=3&&!beeps[s]){ beeps[s]=true; beep(); }
+    if(rem<=0){ finish(); return; }
+  }
+  render();
+}
+function start(){
+  if(locked) return;
+  ctx(); running=true; t0=performance.now();
+  clearInterval(timerId); timerId=setInterval(tick,20);
+  keepAwake(true);
+  setStatus(mode==='countdown'?'Compte à rebours en cours…':'Chronomètre en cours…');
+  render(); updateButtons();
+}
+function pause(){
+  if(!running) return;
+  baseMs=elapsed(); running=false; clearInterval(timerId); timerId=null;
+  keepAwake(false); render(); setStatus('En pause'); updateButtons();
+}
+function finish(){
+  running=false; clearInterval(timerId); timerId=null;
+  baseMs=targetMs; locked=true; keepAwake(false); render();
+  if($('#optWh').checked) whistle(); else beep(1000,0.6,0.3);
+  const d=$('#display'); d.classList.add('flash'); setTimeout(()=>d.classList.remove('flash'),2500);
+  setStatus('Temps écoulé : résultat enregistré');
+  save(targetMs); updateButtons();
+}
+function stop(){
+  if(locked||(baseMs===0&&!running)) return;
+  if(running){ baseMs=elapsed(); running=false; clearInterval(timerId); timerId=null; }
+  locked=true; keepAwake(false); render();
+  save(baseMs);
+  setStatus('Enregistré. Réinitialisez pour un nouveau chrono.'); updateButtons();
+}
+function addSplit(){
+  if(!running) return;
+  splits.push({n:splits.length+1,ms:elapsed()}); renderSplits();
+}
+function reset(){
+  clearInterval(timerId); timerId=null; running=false; locked=false; baseMs=0;
+  splits=[]; beeps={1:false,2:false,3:false}; keepAwake(false);
+  render(); renderSplits(); setStatus('Prêt'); updateButtons();
+}
+function renderSplits(){
+  $('#splits').innerHTML=splits.length
+    ? splits.slice().reverse().map(s=>`<div class="split"><span>Split ${s.n}</span><span>${fmtText(s.ms)}</span></div>`).join('')
+    : '<p class="muted">Aucun temps intermédiaire</p>';
+}
+function updateButtons(){
+  const p=$('#play');
+  p.textContent=running?'⏸ Pause':(baseMs>0?'▶ Reprendre':'▶ Démarrer');
+  p.className='btn '+(running?'o':'g');
+  p.disabled=locked;
+  $('#split').disabled=!running;
+  $('#stop').disabled=locked||(baseMs===0&&!running);
+  const lockSettings=running||baseMs>0;
+  $$('.settings input,.settings select,.presets button').forEach(el=>el.disabled=lockSettings);
+}
+
+/* ---------- Enregistrement d'un passage ---------- */
+async function save(ms){
+  const id=$('#eleve').value, st=studentById(id);
+  const run={
+    date:$('#date').value, titre:$('#titre').value.trim(),
+    nom:st?st.nom:'', prenom:st?st.prenom:'', classe:st?st.classe:'',
+    mode:mode==='countdown'?'Compte à rebours':'Chronomètre',
+    temps:fmtText(ms),
+    splits:splits.map(s=>`Split ${s.n} : ${fmtText(s.ms)}`).join(' | ')
+  };
+  results.push(run); renderResults();
+  if(st&&window.EPS){
+    try{ await saveRun(st.id, run); setStatus('Enregistré dans la fiche de l\'élève.'); }
+    catch(e){ setStatus('⚠ Résultat gardé à l\'écran mais non enregistré dans la fiche : '+(e.message||e)); }
+  }
+}
+/* Colonnes ajoutées à la fiche : essai<n>_date, essai<n>_titre, essai<n>_mode, essai<n>_temps, essai<n>_splits */
+async function saveRun(id, run){
+  const all=await EPS.getExt('chronomulti');
+  const e=all.find(x=>x.id===id);
+  const n=((e&&e.data.nb)||0)+1;
+  await EPS.setExt('chronomulti', id, {
+    nb:n,
+    [`essai${n}_date`]:run.date,
+    [`essai${n}_titre`]:run.titre,
+    [`essai${n}_mode`]:run.mode,
+    [`essai${n}_temps`]:run.temps,
+    [`essai${n}_splits`]:run.splits
+  });
+}
+function renderResults(){
+  $('#rtb').innerHTML=results.length
+    ? results.slice().reverse().map(r=>`<tr><td>${esc(r.date)}</td><td>${esc(r.titre)}</td><td>${esc(r.nom)} ${esc(r.prenom)}${r.classe?` <span class="muted">(${esc(r.classe)})</span>`:''}</td><td>${esc(r.mode)}</td><td><b>${esc(r.temps)}</b></td></tr>`).join('')
+    : '<tr><td colspan=5>Aucun résultat pour le moment</td></tr>';
+  $('#rcnt').textContent=`${results.length} enregistrement(s)`;
+}
+
+/* ---------- Export : fichier d'origine + colonnes ChronoMulti ---------- */
+async function exportCSV(){
+  if(!window.EPS){ $('#expInfo').textContent='❌ eps-core.js introuvable.'; return; }
+  const L=await EPS.all();
+  const cols=new Set();
+  L.forEach(e=>Object.keys((e.ext||{}).chronomulti||{}).forEach(k=>{ if(k!=='nb') cols.add(k); }));
+  const ec=[...cols].sort((a,b)=>a.localeCompare(b,'fr',{numeric:true}));
+  const q=v=>'"'+String(v??'').replace(/"/g,'""')+'"';
+  const H=['Nom','Prénom','Né(e) le','Classe','Régime',...ec.map(c=>'APP_chronomulti_'+c)];
+  const lines=[H.map(q).join(';')];
+  L.forEach(e=>{
+    const d=(e.ext||{}).chronomulti||{};
+    lines.push([e.nom,e.prenom,e.naissance,e.classe,e.regime,...ec.map(c=>d[c])].map(q).join(';'));
+  });
+  const blob=new Blob(['\uFEFF'+lines.join('\r\n')],{type:'text/csv;charset=utf-8'});
+  const url=URL.createObjectURL(blob), a=document.createElement('a');
+  a.href=url; a.download=`liste_eleves_EPS_chronomulti_${new Date().toISOString().slice(0,10)}.csv`;
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(()=>URL.revokeObjectURL(url),1000);
+  $('#expInfo').textContent=`✅ ${L.length} élève(s) exporté(s) avec ${ec.length} colonne(s) ChronoMulti.`;
+}
+
+/* ---------- Événements ---------- */
+$('#imp').onclick=importEPS;
+$('#play').onclick=()=>running?pause():start();
+$('#split').onclick=addSplit;
+$('#stop').onclick=stop;
+$('#reset').onclick=reset;
+$('#mode').onchange=e=>{mode=e.target.value;applyTarget();updateButtons();};
+$('#min').oninput=applyTarget; $('#sec').oninput=applyTarget;
+$$('.presets button').forEach(b=>b.onclick=()=>setPreset(parseInt(b.dataset.sec,10)));
+$('#exp').onclick=exportCSV;
+
+/* ---------- Init ---------- */
+(function(){
+  const n=new Date(Date.now()-new Date().getTimezoneOffset()*60000);
+  $('#date').value=n.toISOString().slice(0,10);
+  applyTarget(); render(); renderSplits(); renderResults(); updateButtons();
+})();
+if('serviceWorker' in navigator&&location.protocol.startsWith('http')) navigator.serviceWorker.register('sw.js').catch(()=>{});
+</script>
+</body>
+</html>
