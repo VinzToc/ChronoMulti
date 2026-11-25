@@ -1,4 +1,4 @@
-const V='chronomulti-v7',F=['footer.js','nouveautes.js','nouveautes.json','./', 'index.html', 'manifest.webmanifest', 'eps-core.js', 'eleve-core.js', 'icons/icon-192-chronomulti.png', 'icons/icon-512-chronomulti.png', 'icons/logo-ChronoMulti.png'];
+const V='chronomulti-v8',F=['footer.js','nouveautes.js','nouveautes.json','./', 'index.html', 'manifest.webmanifest', 'eps-core.js', 'eleve-core.js', 'icons/icon-192-chronomulti.png', 'icons/icon-512-chronomulti.png', 'icons/logo-ChronoMulti.png'];
 const T=2500; // si le réseau ne répond pas en 2,5 s (wifi sans Internet, borne coupée…), on sert tout de suite la copie hors ligne
 const net=r=>new Promise((ok,ko)=>{const t=setTimeout(()=>ko(new Error('timeout')),T);fetch(r,{cache:'no-cache'}).then(x=>{clearTimeout(t);ok(x)},e=>{clearTimeout(t);ko(e)})});
 // Installation : chaque fichier est chargé séparément ; un fichier manquant ne bloque plus l'installation (donc le mode hors ligne).
